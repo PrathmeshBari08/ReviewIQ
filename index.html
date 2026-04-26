@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ReviewIQ Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<style>
+:root{
+  --bg:#0A0A0F;
+  --surface:#111118;
+  --surface2:#16161F;
+  --surface3:#1C1C28;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+
+  --accent:#7C6FFF;
+  --accent2:#5B50CC;
+  --accent-glow:rgba(124,111,255,0.15);
+
+  --green:#22D3A0;
+  --red:#FF5C7D;
+  --amber:#FFB340;
+  --blue:#40B4FF;
+
+  --text:#F0EFF8;
+  --text2:#8E8DAA;
+  --text3:#4A4966;
+
+  --r:12px;
+  --r2:8px;
+
+  --font-head:'Syne';
+  --font-body:'DM Sans';
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  overflow-x:hidden;
+}
+
+/* LAYOUT */
+.sidebar{
+  position:fixed;
+  width:240px;
+  height:100vh;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.main{
+  margin-left:240px;
+  min-height:100vh;
+}
+
+/* SIDEBAR */
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;
+}
+.logo-box{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--accent);
+}
+.badge-ai{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:20px;
+  background:rgba(124,111,255,0.15);
+  color:var(--accent);
+}
+
+.brand{
+  background:var(--surface2);
+  padding:10px;
+  border-radius:var(--r);
+  border:1px solid var(--border);
+}
+
+.nav h4{
+  font-size:11px;
+  color:var(--text3);
+  margin:12px 0 6px;
+}
+
+.nav-item{
+  padding:10px;
+  border-radius:8px;
+  color:var(--text2);
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+}
+.nav-item.active{
+  background:rgba(124,111,255,0.12);
+  border-left:3px solid var(--accent);
+  color:var(--text);
+}
+
+.footer{
+  margin-top:auto;
+  background:var(--surface2);
+  padding:10px;
+  border-radius:var(--r);
+}
+
+/* TOPBAR */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  height:60px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 24px;
+  backdrop-filter:blur(20px);
+  background:rgba(10,10,15,0.6);
+  border-bottom:1px solid var(--border);
+}
+
+/* CONTENT */
+.content{
+  padding:28px 32px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  animation:fade .5s ease forwards;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* CARDS */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px;
+  transition:.2s;
+}
+.card:hover{
+  transform:translateY(-2px);
+  border-color:var(--border2);
+}
+
+/* AI BANNER */
+.banner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(90deg,rgba(124,111,255,0.12),rgba(86,60,255,0.06));
+  border:1px solid rgba(124,111,255,0.25);
+  position:relative;
+  overflow:hidden;
+}
+.banner::after{
+  content:"";
+  position:absolute;
+  top:-60px;right:-60px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(124,111,255,0.2),transparent);
+}
+.pulse{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 0 var(--accent-glow);
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 var(--accent-glow)}
+  70%{box-shadow:0 0 0 12px transparent}
+  100%{box-shadow:0 0 0 0 transparent}
+}
+
+/* STATS */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.stat{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:14px;
+  position:relative;
+}
+.stat::after{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;height:2px;
+}
+.stat h2{font-family:var(--font-head)}
+.badge{
+  font-size:11px;
+  padding:3px 6px;
+  border-radius:999px;
+}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:3fr 1fr 1fr;gap:12px}
+
+/* INSIGHTS */
+.insight{
+  background:var(--surface2);
+  padding:12px;
+  border-radius:var(--r2);
+  border:1px solid var(--border);
+}
+
+/* BUTTONS */
+button{
+  background:var(--accent);
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+button.ghost{
+  background:transparent;
+  border:1px solid var(--border2);
+}
+
+/* FILTERS */
+.pill{
+  padding:6px 10px;
+  border-radius:999px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  cursor:pointer;
+  font-size:12px;
+}
+.pill.active{
+  background:rgba(124,111,255,0.15);
+  border-color:var(--accent);
+}
+
+/* SMALL */
+.small{color:var(--text2);font-size:12px}
+h1,h2,h3{font-family:var(--font-head)}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-box"></div>
+    ReviewIQ <span class="badge-ai">AI</span>
+  </div>
+
+  <div class="brand">
+    <div style="display:flex;justify-content:space-between">
+      <div>
+        <b>NovaBrand Store</b>
+        <div class="small">Pro Plan · 8 platforms</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <h4>Overview</h4>
+    <div class="nav-item active">Dashboard <span>47</span></div>
+    <div class="nav-item">AI Responses <span>New</span></div>
+    <div class="nav-item">AI Insights</div>
+
+    <h4>Platforms</h4>
+    <div class="nav-item">Amazon</div>
+    <div class="nav-item">Shopify</div>
+    <div class="nav-item">Trustpilot</div>
+
+    <h4>Settings</h4>
+    <div class="nav-item">Configuration</div>
+    <div class="nav-item">Reports</div>
+  </div>
+
+  <div class="footer">
+    <b>Sarah Khan</b>
+    <div class="small">Brand Owner</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <b>Review Intelligence Dashboard</b>
+      <div class="small">Last synced 3 minutes ago · 8 platforms active</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="ghost">Date Range</button>
+      <span>🔔</span>
+      <button>✦ Generate AI Report</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- AI BANNER -->
+    <div class="card banner">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pulse"></div>
+        <div>
+          <b>AI Weekly Insight — Action Required</b>
+          <div class="small">Shipping delay spike detected (234 reviews, +78%)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="ghost">View Details</button>
+        <button>✦ Auto-Respond</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><h2>14,382</h2><div class="small">Total Reviews</div></div>
+      <div class="stat"><h2>4.6★</h2><div class="small">Avg Rating</div></div>
+      <div class="stat"><h2>87%</h2><div class="small">Response Rate</div></div>
+      <div class="stat"><h2>47</h2><div class="small">Urgent Reviews</div></div>
+    </div>
+
+    <!-- GRAPHS -->
+    <div class="grid2">
+      <div class="card">
+        <b>Sentiment Trend</b>
+        <canvas id="line"></canvas>
+      </div>
+
+      <div class="card">
+        <b>Sentiment Mix</b>
+        <canvas id="donut"></canvas>
+      </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="grid2b">
+      <div class="card">
+        <b>AI Insights</b>
+        <div class="insight">🚨 Shipping delay spike on Amazon</div>
+        <div class="insight">✅ Packaging praised 3x more</div>
+        <div class="insight">📈 Quality scores rising</div>
+        <div class="insight">⚠ Support in 41% reviews</div>
+      </div>
+
+      <div class="card">
+        <b>Platform Breakdown</b>
+        <div class="small">Amazon 90% | Shopify 68% | Trustpilot 52%</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="grid3">
+
+      <div class="card">
+        <b>Recent Reviews</b>
+        <div class="insight">1★ Late delivery issue</div>
+        <div class="insight">5★ Eco packaging love</div>
+        <div class="insight">2★ Support delay</div>
+      </div>
+
+      <div class="card">
+        <b>Response Rate</b>
+        <h2>87%</h2>
+        <canvas id="spark"></canvas>
+      </div>
+
+      <div class="card">
+        <b>Competitor Radar</b>
+        <div class="insight">NovaBrand #1</div>
+        <div class="insight">BestChoice #2</div>
+        <div class="insight">QuickShop #3</div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ctx1=document.getElementById('line');
+new Chart(ctx1,{
+ type:'line',
+ data:{
+  labels:['W1','W2','W3','W4','W5'],
+  datasets:[
+   {label:'Positive',data:[30,40,50,60,70],borderColor:'#22D3A0',fill:true,tension:0.4},
+   {label:'Neutral',data:[20,25,30,28,35],borderColor:'#FFB340',borderDash:[5,5],fill:true,tension:0.4},
+   {label:'Negative',data:[10,15,12,18,14],borderColor:'#FF5C7D',borderDash:[3,3],fill:true,tension:0.4}
+  ]
+ },
+ options:{plugins:{legend:{display:false}}}
+});
+
+new Chart(document.getElementById('donut'),{
+ type:'doughnut',
+ data:{
+  labels:['Positive','Neutral','Negative'],
+  datasets:[{
+   data:[68,22,10],
+   backgroundColor:['#22D3A0','#FFB340','#FF5C7D']
+  }]
+ },
+ options:{plugins:{legend:{display:false}},cutout:'72%'}
+});
+
+new Chart(document.getElementById('spark'),{
+ type:'line',
+ data:{
+  labels:['M','T','W','T','F','S','S'],
+  datasets:[{
+   data:[74,79,83,80,85,88,87],
+   borderColor:'#7C6FFF',
+   fill:true,
+   tension:0.4
+  }]
+ },
+ options:{
+  plugins:{legend:{display:false}},
+  scales:{x:{display:false},y:{display:false}}
+ }
+});
+</script>
+
+</body>
+</html>
